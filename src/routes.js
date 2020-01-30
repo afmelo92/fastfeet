@@ -8,6 +8,7 @@ import FileController from './app/controllers/FileController';
 import RecipientController from './app/controllers/RecipientController';
 import DelivererController from './app/controllers/DelivererController';
 import ProductController from './app/controllers/ProductController';
+import OrderController from './app/controllers/OrderController';
 
 import authMiddleware from './app/middlewares/auth';
 
@@ -31,6 +32,9 @@ routes.get('/products', ProductController.index);
 routes.post('/products', ProductController.store);
 routes.put('/products/:productId', ProductController.update);
 routes.delete('/products/:productId', ProductController.delete);
+
+routes.put('/orders/:productId/start', OrderController.update);
+routes.put('/orders/:productId/end', OrderController.update);
 
 routes.post('/files', upload.single('file'), FileController.store);
 

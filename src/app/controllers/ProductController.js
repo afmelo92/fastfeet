@@ -5,7 +5,28 @@ import Recipient from '../models/Recipient';
 
 class ProductController {
   async index(req, res) {
-    return res.json({ ok: true });
+    const { page = 1 } = req.query;
+
+    const products = await Product.findAndCountAll({
+      attributes: ['id', 'recipient_id', 'deliverer_id', 'product'],
+      limit: 20,
+      offset: (page - 1) * 20,
+      include: [
+        {
+          model: File,
+          as: 'signature',
+          attributes: ['name', 'path', 'url'],
+        },
+      ],
+    });
+
+    if (!products || products.count === 0) {
+      return res
+        .status(400)
+        .json({ error: 'There are no products registered' });
+    }
+
+    return res.json(products.rows);
   }
 
   async store(req, res) {
