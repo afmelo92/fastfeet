@@ -3,6 +3,9 @@ import File from '../models/File';
 import Deliverer from '../models/Deliverer';
 import Recipient from '../models/Recipient';
 
+import DeliveryMail from '../jobs/DeliveryMail';
+import Queue from '../../lib/Queue';
+
 class ProductController {
   async index(req, res) {
     const { page = 1 } = req.query;
@@ -56,7 +59,30 @@ class ProductController {
           as: 'signature',
           attributes: ['name', 'path', 'url'],
         },
+        {
+          model: Deliverer,
+          as: 'deliverer',
+          attributes: ['id', 'name', 'email'],
+        },
+        {
+          model: Recipient,
+          as: 'recipient',
+          attributes: [
+            'id',
+            'name',
+            'street',
+            'number',
+            'complement',
+            'state',
+            'city',
+            'zip',
+          ],
+        },
       ],
+    });
+
+    await Queue.add(DeliveryMail.key, {
+      product,
     });
 
     return res.json(product);

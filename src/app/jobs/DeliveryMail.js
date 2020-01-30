@@ -1,32 +1,30 @@
-import { format, parseISO } from 'date-fns';
-import pt from 'date-fns/locale/pt-BR';
 import Mail from '../../lib/Mail';
 
-class CancellationMail {
+class DeliveryMail {
   get key() {
-    return 'CancellationMail';
+    return 'DeliveryMail';
   }
 
   async handle({ data }) {
-    const { appointment } = data;
+    const { product } = data;
 
     await Mail.sendMail({
-      to: `${appointment.provider.name} <${appointment.provider.email}>`,
-      subject: 'Agendamento cancelado',
-      template: 'cancellation',
+      to: `${product.deliverer.name} <${product.deliverer.email}>`,
+      subject: 'Entrega te esperando na Fastfeet!',
+      template: 'delivery',
       context: {
-        provider: appointment.provider.name,
-        user: appointment.user.name,
-        date: format(
-          parseISO(appointment.date),
-          "'dia' dd 'de' MMMM', às' H:mm'h",
-          {
-            locale: pt,
-          }
-        ),
+        deliverer: product.deliverer.name,
+        name: product.recipient.name,
+        street: product.recipient.street,
+        number: product.recipient.number,
+        complement: product.recipient.complement,
+        state: product.recipient.state,
+        city: product.recipient.city,
+        zip: product.recipient.zip,
+        product: product.product,
       },
     });
   }
 }
 
-export default new CancellationMail();
+export default new DeliveryMail();

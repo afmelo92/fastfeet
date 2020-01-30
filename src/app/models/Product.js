@@ -21,6 +21,14 @@ class Product extends Model {
       foreignKey: 'signature_id',
       as: 'signature',
     });
+    this.belongsTo(models.Deliverer, {
+      foreignKey: 'deliverer_id',
+      as: 'deliverer',
+    });
+    this.belongsTo(models.Recipient, {
+      foreignKey: 'recipient_id',
+      as: 'recipient',
+    });
   }
 }
 
