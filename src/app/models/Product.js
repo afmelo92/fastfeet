@@ -7,11 +7,19 @@ class Product extends Model {
         recipient_id: Sequelize.INTEGER,
         deliverer_id: Sequelize.INTEGER,
         product: Sequelize.STRING,
+        withdrawn: Sequelize.VIRTUAL,
+        start_date: Sequelize.DATE,
       },
       {
         sequelize,
       }
     );
+
+    this.addHook('beforeSave', async product => {
+      if (product.withdrawn) {
+        product.start_date = await new Date();
+      }
+    });
 
     return this;
   }

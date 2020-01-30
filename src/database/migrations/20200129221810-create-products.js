@@ -35,14 +35,17 @@ module.exports = {
       canceled_at: {
         type: Sequelize.DATE,
         allowNull: true,
+        defaultValue: null,
       },
       start_date: {
         type: Sequelize.DATE,
         allowNull: true,
+        defaultValue: null,
       },
       end_date: {
         type: Sequelize.DATE,
         allowNull: true,
+        defaultValue: null,
       },
       created_at: {
         type: Sequelize.DATE,
