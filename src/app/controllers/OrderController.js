@@ -1,7 +1,11 @@
+import { setHours, setMinutes, setSeconds, format } from 'date-fns';
+import pt from 'date-fns/locale/pt-BR';
+
 import Product from '../models/Product';
 
 class OrderController {
   async update(req, res) {
+    const { withdrawn } = req.body;
     const productExists = await Product.findByPk(req.params.productId);
 
     if (!productExists) {
@@ -9,20 +13,50 @@ class OrderController {
     }
 
     if (productExists.canceled_at != null) {
-      return res.status(401).json({ error: 'Order already canceled' });
+      return res.status(400).json({ error: 'Order already canceled' });
     }
 
     if (productExists.signature_id != null) {
-      return res.status(401).json({ error: 'Product already delivered' });
+      return res.status(400).json({ error: 'Product already delivered' });
     }
 
-    if (productExists.start_date != null) {
-      return res.status(401).json({ error: 'Product already withdrawed' });
+    if (withdrawn) {
+      if (productExists.start_date != null) {
+        return res.status(400).json({ error: 'Product already withdrawed' });
+      }
+
+      const initialHour = format(
+        setSeconds(setMinutes(setHours(new Date(), 8), 0), 0),
+        'H:mm',
+        { locale: pt }
+      );
+
+      const finalHour = format(
+        setSeconds(setMinutes(setHours(new Date(), 18), 0), 0),
+        'H:mm',
+        { locale: pt }
+      );
+
+      const hourStart = format(new Date(), 'H:mm', { locale: pt });
+
+      if (!(hourStart >= initialHour && hourStart <= finalHour)) {
+        return res
+          .status(400)
+          .json({ error: 'Deliverers can only withdrawn between 8AM - 18PM' });
+      }
+
+      productExists.start_date = new Date();
+
+      await productExists.save();
+
+      return res.json(productExists);
     }
 
-    await productExists.update(req.body);
+    productExists.end_date = new Date();
 
-    return res.json({ message: 'Product withdrawed' });
+    await productExists.save();
+
+    return res.json(productExists);
   }
 }
 

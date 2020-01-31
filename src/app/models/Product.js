@@ -9,17 +9,12 @@ class Product extends Model {
         product: Sequelize.STRING,
         withdrawn: Sequelize.VIRTUAL,
         start_date: Sequelize.DATE,
+        end_date: Sequelize.DATE,
       },
       {
         sequelize,
       }
     );
-
-    this.addHook('beforeSave', async product => {
-      if (product.withdrawn) {
-        product.start_date = await new Date();
-      }
-    });
 
     return this;
   }

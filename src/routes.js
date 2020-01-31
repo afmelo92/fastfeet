@@ -33,8 +33,7 @@ routes.post('/products', ProductController.store);
 routes.put('/products/:productId', ProductController.update);
 routes.delete('/products/:productId', ProductController.delete);
 
-routes.put('/orders/:productId/start', OrderController.update);
-routes.put('/orders/:productId/end', OrderController.update);
+routes.put('/orders/:productId', OrderController.update);
 
 routes.post('/files', upload.single('file'), FileController.store);
 
