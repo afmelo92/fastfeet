@@ -16,6 +16,13 @@ class Product extends Model {
       }
     );
 
+    /**
+     * this.addHook('beforeSave', async product => {
+      if (product.withdrawn) {
+        product.start_date = new Date();
+      }
+    });
+     */
     return this;
   }
 
