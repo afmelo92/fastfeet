@@ -1,5 +1,11 @@
 import DeliveryProblem from '../models/DeliveryProblem';
 import Product from '../models/Product';
+import File from '../models/File';
+import Deliverer from '../models/Deliverer';
+import Recipient from '../models/Recipient';
+
+import CancelationMail from '../jobs/CancelationMail';
+import Queue from '../../lib/Queue';
 
 class ProblemController {
   async index(req, res) {
@@ -77,11 +83,51 @@ class ProblemController {
       where: { id },
     });
 
-    const product = await Product.findOne({ where: { id: delivery_id } });
+    const product = await Product.findOne({
+      where: { id: delivery_id },
+      attributes: [
+        'id',
+        'recipient_id',
+        'deliverer_id',
+        'product',
+        'start_date',
+        'canceled_at',
+      ],
+      include: [
+        {
+          model: File,
+          as: 'signature',
+          attributes: ['name', 'path', 'url'],
+        },
+        {
+          model: Deliverer,
+          as: 'deliverer',
+          attributes: ['id', 'name', 'email'],
+        },
+        {
+          model: Recipient,
+          as: 'recipient',
+          attributes: [
+            'id',
+            'name',
+            'street',
+            'number',
+            'complement',
+            'state',
+            'city',
+            'zip',
+          ],
+        },
+      ],
+    });
 
     product.canceled_at = new Date();
 
     await product.save();
+
+    await Queue.add(CancelationMail.key, {
+      product,
+    });
 
     return res.json({ message: 'Delivery canceled' });
   }
