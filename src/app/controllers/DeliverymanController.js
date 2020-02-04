@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 import Product from '../models/Product';
 import Recipient from '../models/Recipient';
 
@@ -7,10 +9,10 @@ class DeliverymanController {
     const deliveryman = await Product.findAndCountAll({
       where: {
         deliverer_id: req.params.delivererId,
-        signature_id: null,
         canceled_at: null,
+        start_date: { [Op.not]: null },
       },
-      attributes: ['id', 'product'],
+      attributes: ['id', 'product', 'start_date'],
       limit: 20,
       offset: (page - 1) * 20,
       include: [

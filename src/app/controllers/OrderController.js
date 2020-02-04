@@ -19,6 +19,12 @@ class OrderController {
         return res.status(400).json({ error: 'Product does not exists' });
       }
 
+      if (productExists.count >= 4) {
+        return res
+          .status(400)
+          .json({ error: 'Only 5 withdrawns per day allowed' });
+      }
+
       const initialHour = setSeconds(setMinutes(setHours(new Date(), 8), 0), 0);
 
       const finalHour = setSeconds(setMinutes(setHours(new Date(), 18), 0), 0);
@@ -58,12 +64,16 @@ class OrderController {
       });
 
       if (product.canceled_at != null) {
-        return res.status(401).json({ error: 'Order already canceled' });
+        return res.status(400).json({ error: 'Order already canceled' });
+      }
+
+      if (product.end_date != null) {
+        return res.status(400).json({ error: 'Product already delivered' });
       }
 
       if (product.start_date == null) {
         return res
-          .status(401)
+          .status(400)
           .json({ error: 'Product must be withdrawn before delivered' });
       }
 
