@@ -12,7 +12,7 @@ export default async (req, res, next) => {
       });
 
       const { id } = await File.findOne({
-        where: { name },
+        where: { path },
       });
 
       req.signatureId = id;
