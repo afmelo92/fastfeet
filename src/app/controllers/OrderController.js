@@ -33,7 +33,7 @@ class OrderController {
         isWithinInterval(new Date(), {
           start: initialHour,
           end: finalHour,
-        }) === false
+        }) === true
       ) {
         return res.status(400).json({
           error: 'Deliverers can only withdrawn between 8AM - 18PM',
@@ -78,6 +78,7 @@ class OrderController {
       }
 
       product.end_date = new Date();
+      product.signature_id = req.signatureId;
 
       await product.save();
 
