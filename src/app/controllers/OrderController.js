@@ -72,7 +72,7 @@ class OrderController {
       await product.save();
 
       return res.json({
-        message: 'Produto entregue',
+        message: 'Product delivered',
         endDate: product.end_date,
       });
     }
