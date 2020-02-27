@@ -1,8 +1,40 @@
+import { Op } from 'sequelize';
 import * as Yup from 'yup';
 
 import Recipient from '../models/Recipient';
 
 class RecipientController {
+  async index(req, res) {
+    const { page = 1, rec } = req.query;
+
+    const recipients = await Recipient.findAndCountAll({
+      where: {
+        name: {
+          [Op.iLike]: { [Op.any]: [`%${rec}%`] },
+        },
+      },
+      attributes: [
+        'id',
+        'name',
+        'number',
+        'complement',
+        'state',
+        'city',
+        'zip',
+      ],
+      limit: 20,
+      offset: (page - 1) * 20,
+    });
+
+    if (!recipients || recipients.count === 0) {
+      return res
+        .status(400)
+        .json({ error: 'There are no recipients registered' });
+    }
+
+    return res.json(recipients.rows);
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string().required(),

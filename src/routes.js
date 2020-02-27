@@ -36,6 +36,7 @@ routes.post('/delivery/:productId/problems', ProblemController.store);
 
 routes.use(authMiddleware);
 
+routes.get('/recipients', RecipientController.index);
 routes.post('/recipients', RecipientController.store);
 routes.put('/recipients/:recipientId', RecipientController.update);
 
