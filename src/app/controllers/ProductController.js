@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 import Product from '../models/Product';
 import File from '../models/File';
 import Deliverer from '../models/Deliverer';
@@ -8,9 +10,14 @@ import Queue from '../../lib/Queue';
 
 class ProductController {
   async index(req, res) {
-    const { page = 1 } = req.query;
+    const { page = 1, prod } = req.query;
 
     const products = await Product.findAndCountAll({
+      where: {
+        product: {
+          [Op.iLike]: { [Op.any]: [`%${prod}%`] },
+        },
+      },
       attributes: ['id', 'recipient_id', 'deliverer_id', 'product'],
       limit: 20,
       offset: (page - 1) * 20,
