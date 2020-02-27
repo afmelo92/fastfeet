@@ -1,4 +1,5 @@
-import { setHours, setMinutes, setSeconds, isWithinInterval } from 'date-fns';
+import { isWithinInterval, startOfToday, addHours } from 'date-fns';
+import { utcToZonedTime } from 'date-fns-tz';
 
 import Product from '../models/Product';
 
@@ -25,16 +26,17 @@ class OrderController {
           .json({ error: 'Only 5 withdrawns per day allowed' });
       }
 
-      const initialHour = setSeconds(setMinutes(setHours(new Date(), 8), 0), 0);
-
-      const finalHour = setSeconds(setMinutes(setHours(new Date(), 18), 0), 0);
-
-      if (
-        isWithinInterval(new Date(), {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const initialHour = utcToZonedTime(addHours(startOfToday(), 8), timezone);
+      const finalHour = utcToZonedTime(addHours(startOfToday(), 18), timezone);
+      const compareDate = isWithinInterval(
+        utcToZonedTime(new Date(), timezone),
+        {
           start: initialHour,
           end: finalHour,
-        }) === true
-      ) {
+        }
+      );
+      if (!compareDate) {
         return res.status(400).json({
           error: 'Deliverers can only withdrawn between 8AM - 18PM',
         });
