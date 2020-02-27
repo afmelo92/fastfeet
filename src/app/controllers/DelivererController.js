@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import * as Yup from 'yup';
 
 import Deliverer from '../models/Deliverer';
@@ -5,9 +6,14 @@ import File from '../models/File';
 
 class DelivererController {
   async index(req, res) {
-    const { page = 1 } = req.query;
+    const { page = 1, dname } = req.query;
 
     const deliverers = await Deliverer.findAndCountAll({
+      where: {
+        name: {
+          [Op.iLike]: { [Op.any]: [`%${dname}%`] },
+        },
+      },
       attributes: ['id', 'name', 'email'],
       limit: 20,
       offset: (page - 1) * 20,
