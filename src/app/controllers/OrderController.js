@@ -1,4 +1,5 @@
-import { isWithinInterval, startOfToday, addHours } from 'date-fns';
+import { Op } from 'sequelize';
+import { isWithinInterval, startOfToday, endOfToday, addHours } from 'date-fns';
 import { utcToZonedTime } from 'date-fns-tz';
 
 import Product from '../models/Product';
@@ -9,21 +10,21 @@ class OrderController {
 
     // Improve with switch case
     if (status && status === 'withdrawn') {
-      const productExists = await Product.findAndCountAll({
+      const productExists = await Product.findOne({
         where: {
           id: req.params.productId,
         },
-        attributes: ['start_date', 'end_date'],
+        attributes: ['start_date', 'end_date', 'deliverer_id'],
       });
 
-      if (productExists.count === 0) {
+      const dId = productExists.deliverer_id;
+
+      if (!productExists) {
         return res.status(400).json({ error: 'Product does not exists' });
       }
 
-      if (productExists.count >= 4) {
-        return res
-          .status(400)
-          .json({ error: 'Only 5 withdrawns per day allowed' });
+      if (productExists.start_date !== null) {
+        return res.status(400).json({ error: 'Product already withdrawn' });
       }
 
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -36,9 +37,22 @@ class OrderController {
           end: finalHour,
         }
       );
-      if (!compareDate) {
+
+      if (compareDate) {
         return res.status(400).json({
           error: 'Deliverers can only withdrawn between 8AM - 18PM',
+        });
+      }
+
+      const withdrawCount = await Product.findAndCountAll({
+        where: {
+          [Op.and]: [{ start_date: { [Op.not]: null } }, { deliverer_id: dId }],
+        },
+      });
+
+      if (withdrawCount.count > 4) {
+        return res.status(400).json({
+          error: 'Only 5 withdrawns per day allowed',
         });
       }
 
@@ -53,7 +67,7 @@ class OrderController {
       await product.save();
 
       return res.json({
-        message: 'Product withdrawn',
+        message: 'Product withdrawn!',
         startDate: product.start_date,
       });
     }
