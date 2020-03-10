@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { isWithinInterval, startOfToday, endOfToday, addHours } from 'date-fns';
+import { isWithinInterval, startOfToday, addHours } from 'date-fns';
 import { utcToZonedTime } from 'date-fns-tz';
 
 import Product from '../models/Product';

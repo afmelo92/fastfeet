@@ -27,6 +27,16 @@ class ProductController {
           as: 'signature',
           attributes: ['name', 'path', 'url'],
         },
+        {
+          model: Recipient,
+          as: 'recipient',
+          attributes: ['name', 'city', 'state'],
+        },
+        {
+          model: Deliverer,
+          as: 'deliverer',
+          attributes: ['id', 'name', 'email'],
+        },
       ],
     });
 
