@@ -18,7 +18,15 @@ class ProductController {
           [Op.iLike]: { [Op.any]: [`%${prod}%`] },
         },
       },
-      attributes: ['id', 'recipient_id', 'deliverer_id', 'product'],
+      attributes: [
+        'id',
+        'recipient_id',
+        'deliverer_id',
+        'product',
+        'start_date',
+        'end_date',
+        'canceled_at',
+      ],
       limit: 20,
       offset: (page - 1) * 20,
       include: [
