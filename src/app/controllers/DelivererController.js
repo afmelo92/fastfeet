@@ -8,6 +8,32 @@ class DelivererController {
   async index(req, res) {
     const { page = 1, dname } = req.query;
 
+    if (page === 'all') {
+      const deliverers = await Deliverer.findAndCountAll({
+        where: {
+          name: {
+            [Op.iLike]: { [Op.any]: [`%${dname}%`] },
+          },
+        },
+        attributes: ['id', 'name', 'email'],
+        include: [
+          {
+            model: File,
+            as: 'avatar',
+            attributes: ['name', 'path', 'url'],
+          },
+        ],
+      });
+
+      if (!deliverers || deliverers.count === 0) {
+        return res
+          .status(400)
+          .json({ error: 'There are no deliverers registered' });
+      }
+
+      return res.json(deliverers.rows);
+    }
+
     const deliverers = await Deliverer.findAndCountAll({
       where: {
         name: {

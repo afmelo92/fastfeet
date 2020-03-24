@@ -7,6 +7,34 @@ class RecipientController {
   async index(req, res) {
     const { page = 1, rec } = req.query;
 
+    if (page === 'all') {
+      const recipients = await Recipient.findAndCountAll({
+        where: {
+          name: {
+            [Op.iLike]: { [Op.any]: [`%${rec}%`] },
+          },
+        },
+        attributes: [
+          'id',
+          'name',
+          'street',
+          'number',
+          'complement',
+          'state',
+          'city',
+          'zip',
+        ],
+      });
+
+      if (!recipients || recipients.count === 0) {
+        return res
+          .status(400)
+          .json({ error: 'There are no recipients registered' });
+      }
+
+      return res.json(recipients.rows);
+    }
+
     const recipients = await Recipient.findAndCountAll({
       where: {
         name: {
@@ -16,6 +44,7 @@ class RecipientController {
       attributes: [
         'id',
         'name',
+        'street',
         'number',
         'complement',
         'state',

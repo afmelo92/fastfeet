@@ -12,6 +12,50 @@ class ProductController {
   async index(req, res) {
     const { page = 1, prod } = req.query;
 
+    if (page === 'all') {
+      const products = await Product.findAndCountAll({
+        where: {
+          product: {
+            [Op.iLike]: { [Op.any]: [`%${prod}%`] },
+          },
+        },
+        attributes: [
+          'id',
+          'recipient_id',
+          'deliverer_id',
+          'product',
+          'start_date',
+          'end_date',
+          'canceled_at',
+        ],
+        include: [
+          {
+            model: File,
+            as: 'signature',
+            attributes: ['name', 'path', 'url'],
+          },
+          {
+            model: Recipient,
+            as: 'recipient',
+            attributes: ['name', 'city', 'state'],
+          },
+          {
+            model: Deliverer,
+            as: 'deliverer',
+            attributes: ['id', 'name', 'email'],
+          },
+        ],
+      });
+
+      if (!products || products.count === 0) {
+        return res
+          .status(400)
+          .json({ error: 'There are no products registered' });
+      }
+
+      return res.json(products.rows);
+    }
+
     const products = await Product.findAndCountAll({
       where: {
         product: {
