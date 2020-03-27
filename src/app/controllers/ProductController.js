@@ -43,6 +43,13 @@ class ProductController {
             model: Deliverer,
             as: 'deliverer',
             attributes: ['id', 'name', 'email'],
+            include: [
+              {
+                model: File,
+                as: 'avatar',
+                attributes: ['name', 'path', 'url'],
+              },
+            ],
           },
         ],
       });
